@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  --background: #1a1a1a;
+  --foreground: #ededed;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* Brand Color */
+  --color-brand: #FF6B00;
+
+  /* Secondary Colors */
+  --color-secondary-1: #cc9966;
+  --color-secondary-2: #262a2c;
+  --color-secondary-3: #130f49;
+  --color-secondary-4: #ffffff;
+
+  /* Greyscale */
+  --color-grey-50: #f9fafb;
+  --color-grey-100: #f4f4f6;
+  --color-grey-200: #e5e6eb;
+  --color-grey-300: #d3d5da;
+  --color-grey-400: #9ea3ae;
+  --color-grey-500: #6c727f;
+  --color-grey-600: #4d5461;
+  --color-grey-700: #394150;
+  --color-grey-800: #212936;
+  --color-grey-900: #161d21;
+}
+
+/* 다크모드 미디어 쿼리 */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* 무한 스크롤 애니메이션 */
+@keyframes slide-infinite {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-slide-infinite {
+  animation: slide-infinite 20s linear infinite;
+}
