@@ -11,7 +11,14 @@ interface WorkCardProps {
   isSearchMode?: boolean;
 }
 
-export default function WorkCard({ id, title, tags, image, logo, isSearchMode = false }: WorkCardProps) {
+export default function WorkCard({
+  id,
+  title,
+  tags,
+  image,
+  logo,
+  isSearchMode = false,
+}: WorkCardProps) {
   const tagsContainerRef = useRef<HTMLDivElement>(null);
   const [needsAnimation, setNeedsAnimation] = useState(false);
 
@@ -53,12 +60,18 @@ export default function WorkCard({ id, title, tags, image, logo, isSearchMode = 
         ) : (
           <div className="text-grey-500 text-sm">이미지 영역</div>
         )}
-        {logo && <div className="absolute inset-0 flex items-center justify-center">{logo}</div>}
+        {logo && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            {logo}
+          </div>
+        )}
       </div>
 
       {/* 타이틀 */}
       <div className="p-4">
-        <h3 className="text-white text-left font-medium mb-3">{title}</h3>
+        <h3 className="text-white text-left font-medium mb-3 break-words">
+          {title}
+        </h3>
 
         {/* 태그 영역 */}
         <div ref={tagsContainerRef} className="relative overflow-hidden w-full">
@@ -80,4 +93,3 @@ export default function WorkCard({ id, title, tags, image, logo, isSearchMode = 
     </div>
   );
 }
-

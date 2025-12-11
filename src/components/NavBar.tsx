@@ -2,23 +2,23 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 
 interface CategoryItem {
-  label: string;
-  value: string;
+  readonly label: string;
+  readonly value: string;
 }
 
 interface Category {
-  title: string;
-  items: CategoryItem[];
+  readonly title: string;
+  readonly items: readonly CategoryItem[];
 }
 
 interface NavBarProps {
   pageName: string;
   title: string;
-  categories: Category[];
+  categories: readonly Category[];
   showBackButton?: boolean;
   backButtonHref?: string;
   selectedValue?: string;
@@ -39,6 +39,11 @@ export default function NavBar({
   const router = useRouter();
   const [selected, setSelected] = useState(selectedValue || "");
 
+  // selectedValue prop이 변경되면 내부 state도 업데이트
+  useEffect(() => {
+    setSelected(selectedValue || "");
+  }, [selectedValue]);
+
   const handleBack = () => {
     if (backButtonHref) {
       router.push(backButtonHref);
@@ -57,10 +62,7 @@ export default function NavBar({
       <div className="flex flex-col gap-8">
         {/* HOME | PageName */}
         <div className="flex items-center gap-2 text-sm text-grey-400">
-          <Link
-            href="/"
-            className="hover:text-grey-200 transition-colors"
-          >
+          <Link href="/" className="hover:text-grey-200 transition-colors">
             HOME
           </Link>
           <span className="text-grey-600">|</span>
@@ -113,7 +115,7 @@ export default function NavBar({
             <div key={category.title} className="flex flex-col gap-4">
               {/* 카테고리 제목 */}
               <h3 className="text-white font-bold text-sm">{category.title}</h3>
-              
+
               {/* 카테고리 아이템들 */}
               <div className="flex flex-col gap-3">
                 {category.items.map((item, itemIndex) => {
@@ -124,7 +126,9 @@ export default function NavBar({
                       key={item.value}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: (categoryIndex * 0.1) + (itemIndex * 0.05) }}
+                      transition={{
+                        delay: categoryIndex * 0.1 + itemIndex * 0.05,
+                      }}
                       onClick={() => handleSelect(item.value)}
                       className="flex items-center gap-3 group"
                     >
@@ -178,4 +182,3 @@ export default function NavBar({
     </nav>
   );
 }
-

@@ -1,72 +1,25 @@
-"use client";
-
-import { useState } from "react";
+import { type SanityDocument } from "next-sanity";
 import NavBar from "@/components/NavBar";
 import WorkCard from "@/components/WorkCard";
 import SearchBar from "@/components/SearchBar";
+import WorkPageClient from "./WorkPageClient";
+import { client } from "@/sanity/client";
+import { urlForImage } from "@/sanity/utils";
 
-const workProjects = [
-  {
-    id: 1,
-    title: "11번가 공식 인스타그램 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 2,
-    title: "제스프리 코리아 DPR",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 3,
-    title: "롯데월드 공식 유튜브채널 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 4,
-    title: "포스코퓨처소설 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 5,
-    title: "지미존스 코리아 IMC 브랜딩",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 6,
-    title: "틱톡 Always on amplification",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 7,
-    title: "경남지역 레모나 소셜미디어 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 8,
-    title: "넥슨 FC온라인 FSL 소셜미디어 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 9,
-    title: "아스트라제네카코리아링크드인 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 10,
-    title: "CJ케어 마이크로바이옴",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 11,
-    title: "로레알코리아 스킨수티컬즈",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-  {
-    id: 12,
-    title: "이마트24 디지털마케팅 운영",
-    tags: ["0.5 Photo", "0.5 Video"],
-  },
-];
+const WORK_QUERY = `*[_type == "work"] | order(order asc, publishedAt desc) {
+  _id,
+  title,
+  slug,
+  image,
+  tags,
+  category,
+  subCategory,
+  description,
+  publishedAt,
+  order
+}`;
+
+const options = { next: { revalidate: 30 } };
 
 const workCategories = [
   {
@@ -111,73 +64,122 @@ const workCategories = [
     title: "AI 콘텐츠",
     items: [],
   },
-];
+] as const;
 
-export default function WorkPage() {
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [searchKeyword, setSearchKeyword] = useState("");
+export default async function WorkPage() {
+  const works = await client.fetch<SanityDocument[]>(WORK_QUERY, {}, options);
 
-  const handleSelect = (value: string) => {
-    setSelectedCategory(value);
-    console.log("Selected:", value);
-    // 필터링 로직 추가
-  };
+  // 더미 데이터 생성
+  const dummyWorks: SanityDocument[] =
+    works.length > 0
+      ? works
+      : [
+          {
+            _id: "dummy-work-1",
+            _rev: "dummy-rev-1",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Lorem Ipsum Dolor Sit Amet",
+            slug: { current: "lorem-ipsum-1" },
+            tags: ["0.5 Photo", "0.5 Video"],
+            category: "design",
+            subCategory: "sns-content",
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            order: 1,
+          },
+          {
+            _id: "dummy-work-2",
+            _rev: "dummy-rev-2",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Consectetur Adipiscing Elit",
+            slug: { current: "lorem-ipsum-2" },
+            tags: ["Video", "Motion Graphics"],
+            category: "video",
+            subCategory: "branded-video",
+            description:
+              "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            order: 2,
+          },
+          {
+            _id: "dummy-work-3",
+            _rev: "dummy-rev-3",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Sed Do Eiusmod Tempor",
+            slug: { current: "lorem-ipsum-3" },
+            tags: ["Photo", "Product"],
+            category: "photo",
+            subCategory: "product",
+            description:
+              "Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+            order: 3,
+          },
+          {
+            _id: "dummy-work-4",
+            _rev: "dummy-rev-4",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Ut Enim Ad Minim Veniam",
+            slug: { current: "lorem-ipsum-4" },
+            tags: ["Design", "Branding"],
+            category: "design",
+            subCategory: "branding",
+            description:
+              "Duis aute irure dolor in reprehenderit in voluptate velit esse.",
+            order: 4,
+          },
+          {
+            _id: "dummy-work-5",
+            _rev: "dummy-rev-5",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Quis Nostrud Exercitation",
+            slug: { current: "lorem-ipsum-5" },
+            tags: ["Video", "Short Form"],
+            category: "video",
+            subCategory: "short-form",
+            description: "Excepteur sint occaecat cupidatat non proident.",
+            order: 5,
+          },
+          {
+            _id: "dummy-work-6",
+            _rev: "dummy-rev-6",
+            _type: "work",
+            _createdAt: new Date().toISOString(),
+            _updatedAt: new Date().toISOString(),
+            title: "Duis Aute Irure Dolor",
+            slug: { current: "lorem-ipsum-6" },
+            tags: ["Photo", "Portrait"],
+            category: "photo",
+            subCategory: "portrait",
+            description:
+              "Sunt in culpa qui officia deserunt mollit anim id est laborum.",
+            order: 6,
+          },
+        ];
 
-  const handleSearch = (keyword: string) => {
-    setIsSearching(keyword.length > 0);
-    console.log("Search:", keyword);
-    // 검색 로직 추가
-  };
-
-  const handleTitleClick = () => {
-    // 초기 상태로 리셋
-    setSelectedCategory("");
-    setSearchKeyword("");
-    setIsSearching(false);
-  };
+  const workProjects = dummyWorks.map((work) => ({
+    id: work._id,
+    title: work.title,
+    tags: work.tags || [],
+    image: work.image ? urlForImage(work.image) : undefined,
+    category: work.category,
+    subCategory: work.subCategory,
+    slug: work.slug?.current,
+    description: work.description,
+  }));
 
   return (
-    <main className="w-full relative">
-      <div className="w-full h-px bg-grey-700 mt-12" />
-      <NavBar
-        pageName="WORK"
-        title="전체 프로젝트"
-        categories={workCategories}
-        showBackButton={true}
-        selectedValue={selectedCategory}
-        onSelect={handleSelect}
-        onTitleClick={handleTitleClick}
-      />
-      <div className="pl-64 pr-8 py-8">
-        {/* 검색바 - 오른쪽 위 */}
-        <div className="flex justify-end mb-8">
-          <div className="w-full max-w-[850px]">
-            <SearchBar
-              placeholder="SEARCH"
-              onSearch={handleSearch}
-              value={searchKeyword}
-              onChange={(value) => {
-                setSearchKeyword(value);
-                handleSearch(value);
-              }}
-            />
-          </div>
-        </div>
-
-        {/* 콘텐츠 영역 - 3열 그리드 */}
-        <div className="grid grid-cols-3 gap-6">
-          {workProjects.map((project) => (
-            <WorkCard
-              key={project.id}
-              id={project.id}
-              title={project.title}
-              tags={project.tags}
-              isSearchMode={isSearching}
-            />
-          ))}
-        </div>
-      </div>
-    </main>
+    <WorkPageClient
+      workProjects={workProjects}
+      workCategories={workCategories}
+    />
   );
 }
