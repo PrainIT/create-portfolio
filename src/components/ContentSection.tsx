@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import React from "react";
 import { motion } from "framer-motion";
 
 const filters = [
+  { name: "전체", count: 0 },
   { name: "릴스 Reels", count: 0 },
   { name: "숏품 Short-form", count: 0 },
   { name: "숏츠 Shorts", count: 0 },
@@ -17,45 +18,23 @@ const filters = [
   { name: "바이럴영상 Viral", count: 0 },
 ];
 
-const contentCards = [
-  {
-    id: 1,
-    title: "11번가 공식 인스타그램 운영",
-    description: "이러이러한걸 했고요 저러저러했습니다",
-    subDescription: "굉장히 유익했고 보람찬 작업이었지요",
-    number: "11",
-  },
-  {
-    id: 2,
-    title: "제스프리 코리아 DPR",
-    description: "이러이러한걸 했고요 지러지러했습니다",
-    subDescription: "굉장히 유익했고 보람찬 작업이었지요",
-    brand: "Zespri",
-  },
-  {
-    id: 3,
-    title: "롯데월드 공식 유튜브 운영",
-    description: "이러이러한걸 했고요 저러저러했습니다.",
-    subDescription: "굉장히 유익했고 보람찬 작업이었지요",
-    brand: "LOTTE WORLD",
-  },
-  {
-    id: 4,
-    title: "롯데월드 공식 유튜브 운영",
-    description: "이러이러한걸 했고요 저러저러했습니다.",
-    subDescription: "굉장히 유익했고 보람찬 작업이었지요",
-    brand: "LOTTE WORLD",
-  },
-  {
-    id: 5,
-    title: "롯데월드 공식 유튜브 운영",
-    description: "이러이러한걸 했고요 저러저러했습니다.",
-    subDescription: "굉장히 유익했고 보람찬 작업이었지요",
-    brand: "LOTTE WORLD",
-  },
-];
+interface ContentCard {
+  id: string;
+  title: string;
+  description: string;
+  subDescription: string;
+  number?: string;
+  brand?: string;
+  image?: string;
+  slug?: string;
+  filters?: string[];
+}
 
-export default function ContentSection() {
+interface ContentSectionProps {
+  contentCards: ContentCard[];
+}
+
+export default function ContentSection({ contentCards }: ContentSectionProps) {
   const [selectedFilter, setSelectedFilter] = useState(filters[0].name);
   const [searchKeyword, setSearchKeyword] = useState("");
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -125,6 +104,45 @@ export default function ContentSection() {
     };
   }, []);
 
+  // 필터별 카운트 계산
+  const filtersWithCount = useMemo(() => {
+    return filters.map((filter) => {
+      if (filter.name === "전체") {
+        return { ...filter, count: contentCards.length };
+      }
+      const count = contentCards.filter((card) =>
+        card.filters?.includes(filter.name)
+      ).length;
+      return { ...filter, count };
+    });
+  }, [contentCards]);
+
+  // 필터링된 카드
+  const filteredCards = useMemo(() => {
+    let filtered = contentCards;
+
+    // 필터 적용 ("전체"가 아닌 경우에만 필터링)
+    if (selectedFilter && selectedFilter !== "전체") {
+      filtered = filtered.filter((card) =>
+        card.filters?.includes(selectedFilter)
+      );
+    }
+
+    // 검색 키워드 적용
+    if (searchKeyword) {
+      const keyword = searchKeyword.toLowerCase();
+      filtered = filtered.filter(
+        (card) =>
+          card.title.toLowerCase().includes(keyword) ||
+          card.description.toLowerCase().includes(keyword) ||
+          card.subDescription.toLowerCase().includes(keyword) ||
+          card.brand?.toLowerCase().includes(keyword)
+      );
+    }
+
+    return filtered;
+  }, [contentCards, selectedFilter, searchKeyword]);
+
   return (
     <section className="w-full bg-[#1A1A1A] py-16 px-4">
       <div className="max-w-[1440px] mx-auto">
@@ -174,7 +192,7 @@ export default function ContentSection() {
 
         {/* 필터 태그들 */}
         <div className="flex flex-wrap gap-3 mb-12 justify-center">
-          {filters.map((filter, index) => {
+          {filtersWithCount.map((filter, index) => {
             const isNewRow = index > 0 && index % 5 === 0;
             return (
               <React.Fragment key={filter.name}>
@@ -187,7 +205,7 @@ export default function ContentSection() {
                       : "border-grey-600 text-grey-600 hover:border-grey-100 hover:text-grey-100"
                   }`}
                 >
-                  {filter.name}
+                  {filter.name} {filter.count > 0 && `(${filter.count})`}
                 </button>
               </React.Fragment>
             );
@@ -211,48 +229,68 @@ export default function ContentSection() {
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
-            {contentCards.map((card, index) => (
-              <motion.div
-                key={card.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="min-w-[407px] flex-shrink-0 snap-center"
-                // 나중에 카드에 onClick 넣을 때 예시:
-                // onClick={() => {
-                //   if (isDragging) return;
-                //   // 실제 클릭 로직
-                // }}
-              >
-                <div className="bg-grey-800 rounded-2xl overflow-hidden min-h-[878px] relative">
-                  {/* 카드 이미지 영역 */}
-                  <div className="absolute inset-0 border-2 border-dashed border-grey-600 flex items-center justify-center">
-                    <span className="text-grey-500 text-sm">이미지 영역</span>
-                  </div>
+            {filteredCards.length > 0 ? (
+              filteredCards.map((card, index) => (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="min-w-[407px] flex-shrink-0 snap-center"
+                  // 나중에 카드에 onClick 넣을 때 예시:
+                  // onClick={() => {
+                  //   if (isDragging) return;
+                  //   // 실제 클릭 로직 (예: router.push(`/brand/${card.slug}`))
+                  // }}
+                >
+                  <div className="bg-grey-800 rounded-2xl overflow-hidden min-h-[878px] relative">
+                    {/* 카드 이미지 영역 */}
+                    {card.image ? (
+                      <img
+                        src={card.image}
+                        alt={card.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 border-2 border-dashed border-grey-600 flex items-center justify-center">
+                        <span className="text-grey-500 text-sm">
+                          이미지 영역
+                        </span>
+                      </div>
+                    )}
 
-                  {/* 카드 텍스트 영역 - 이미지 위에 오버레이 */}
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    {card.number && (
-                      <div className="text-4xl font-bold text-white mb-4 text-center">
-                        {card.number} →
-                      </div>
-                    )}
-                    {card.brand && (
-                      <div className="text-2xl font-bold text-white mb-4 text-center">
-                        {card.brand}
-                      </div>
-                    )}
-                    <h3 className="text-xl font-semibold text-white mb-2">
-                      {card.title}
-                    </h3>
-                    <p className="text-grey-300 mb-1">{card.description}</p>
-                    <p className="text-grey-400 text-sm">
-                      {card.subDescription}
-                    </p>
+                    {/* 카드 텍스트 영역 - 이미지 위에 오버레이 */}
+                    <div className="absolute bottom-0 left-0 right-0 p-6">
+                      {card.number && (
+                        <div className="text-4xl font-bold text-white mb-4 text-center">
+                          {card.number} →
+                        </div>
+                      )}
+                      {card.brand && (
+                        <div className="text-2xl font-bold text-white mb-4 text-center">
+                          {card.brand}
+                        </div>
+                      )}
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {card.title}
+                      </h3>
+                      <p className="text-grey-300 mb-1">{card.description}</p>
+                      <p className="text-grey-400 text-sm">
+                        {card.subDescription}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            ) : (
+              <div className="w-full text-center py-16">
+                <p className="text-grey-400 text-lg">
+                  {searchKeyword
+                    ? "검색 결과가 없습니다."
+                    : "표시할 콘텐츠가 없습니다."}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
