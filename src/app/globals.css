@@ -72,7 +72,7 @@
   75% {
     opacity: 1;
     filter: blur(55px) brightness(1.8)
-      drop-shadow(0 0 50px rgba(255, 98, 0, 0.8));
+      drop-shadow(0 0 50px rgba(255, 98, 0, 0.6));
     transform: rotate(270deg) scale(1.05);
   }
   100% {
@@ -82,9 +82,41 @@
   }
 }
 
+@keyframes glow-sparkle-white {
+  0% {
+    opacity: 0.4;
+    filter: brightness(0) invert(1) opacity(0.5) blur(40px) brightness(1)
+      drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    opacity: 0.9;
+    filter: brightness(0) invert(1) opacity(0.5) blur(50px) brightness(1.5)
+      drop-shadow(0 0 40px rgba(255, 255, 255, 0.6));
+    transform: rotate(90deg) scale(1.05);
+  }
+  50% {
+    opacity: 0.5;
+    filter: brightness(0) invert(1) opacity(0.5) blur(45px) brightness(1.2)
+      drop-shadow(0 0 30px rgba(255, 255, 255, 0.4));
+    transform: rotate(180deg) scale(1.1);
+  }
+  75% {
+    opacity: 1;
+    filter: brightness(0) invert(1) opacity(0.5) blur(55px) brightness(1.8)
+      drop-shadow(0 0 50px rgba(255, 255, 255, 0.8));
+    transform: rotate(270deg) scale(1.05);
+  }
+  100% {
+    opacity: 0.4;
+    filter: brightness(0) invert(1) opacity(0.5) blur(40px) brightness(1)
+      drop-shadow(0 0 20px rgba(255, 255, 255, 0.3));
+    transform: rotate(360deg) scale(1);
+  }
+}
+
 /* 글로우 효과 - fixed position으로 스크롤해도 보임 */
-body::before,
-body::after {
+body::before {
   content: "";
   position: fixed;
   pointer-events: none;
@@ -93,12 +125,21 @@ body::after {
   transform-origin: center center;
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  animation: glow-sparkle-white 8s ease-in-out infinite;
+  transform-origin: center center;
+}
+
 /* 오렌지 글로우 - 오른쪽 하단 */
 body::before {
-  width: 500px;
-  height: 500px;
+  width: 800px;
+  height: 800px;
   bottom: 10%;
-  right: -150px;
+  right: -200px;
   background-image: var(--glow-orange);
   background-size: contain;
   background-repeat: no-repeat;
@@ -108,10 +149,10 @@ body::before {
 
 /* 화이트 글로우 - 왼쪽 상단 */
 body::after {
-  width: 400px;
-  height: 400px;
+  width: 700px;
+  height: 700px;
   top: 20%;
-  left: -100px;
+  left: -150px;
   background-image: var(--glow-white);
   background-size: contain;
   background-repeat: no-repeat;
